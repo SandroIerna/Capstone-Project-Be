@@ -8,7 +8,11 @@ usersRouter.post("/register", async (req, res, next) => {
   try {
     const newUser = new UsersModel(req.body);
     const { _id } = await newUser.save();
-    const payload = { _id: newUser._id, name: newUser.name };
+    const payload = {
+      _id: newUser._id,
+      firstName: newUser.firstName,
+      role: newUser.role,
+    };
     const accessToken = await createAccessToken(payload);
     res
       .status(201)
@@ -23,7 +27,7 @@ usersRouter.post("/login", async (req, res, next) => {
     const { email, password } = req.body;
     const user = await UsersModel.checkCredentials(email, password);
     if (user) {
-      const payload = { _id: user._id, name: user.name };
+      const payload = { _id: user._id, role: user.role, name: user.firstName };
       const accessToken = await createAccessToken(payload);
       res.send({ accessToken });
     }

@@ -2,8 +2,6 @@ import createHttpError from "http-errors";
 import { verifyAccessToken } from "./tools.js";
 
 export const JWTAuthMiddleware = async (req, res, next) => {
-  const user = req.user;
-
   if (!req.headers.authorization) {
     next(
       createHttpError(
@@ -18,6 +16,7 @@ export const JWTAuthMiddleware = async (req, res, next) => {
       req.user = {
         _id: payload._id,
         name: payload.name,
+        role: payload.role,
       };
       next();
     } catch (error) {

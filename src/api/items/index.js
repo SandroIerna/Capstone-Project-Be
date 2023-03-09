@@ -12,9 +12,19 @@ itemsRouter.post(
   ownerOnlyMiddleware,
   async (req, res, next) => {
     try {
-      const newItem = new ItemsModel(req.body);
-      const { _id } = await newItem.save();
-      res.status(201).send({ _id });
+      const itemCheck = await ItemsModel.find({ name: req.body.name });
+      if (itemCheck)
+        next(
+          createHttpError(
+            400,
+            `Item with name ${req.body.name} already exists!`
+          )
+        );
+      else {
+        const newItem = new ItemsModel(req.body);
+        const { _id } = await newItem.save();
+        res.status(201).send({ _id });
+      }
     } catch (error) {
       next(error);
     }
