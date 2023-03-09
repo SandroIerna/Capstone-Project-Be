@@ -1,6 +1,8 @@
 import express from "express";
 import listEndpoints from "express-list-endpoints";
 import mongoose from "mongoose";
+import itemsRouter from "./api/items/index.js";
+import storesRouter from "./api/stores/index.js";
 import usersRouter from "./api/users/index.js";
 import {
   badRequestHandler,
@@ -16,6 +18,8 @@ const port = process.env.PORT || 3001;
 server.use(express.json());
 
 server.use("/users", usersRouter);
+server.use("/items", itemsRouter);
+server.use("/stores", storesRouter);
 
 server.use(badRequestHandler);
 server.use(unauthorizedErrorHandler);
