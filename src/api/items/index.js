@@ -1,20 +1,27 @@
 import express from "express";
 import ItemsModel from "./model.js";
 import createHttpError from "http-errors";
+import { JWTAuthMiddleware } from "../../library/jwtAuth.js";
+import { ownerOnlyMiddleware } from "../../library/ownerOnly.js";
 
 const itemsRouter = express.Router();
 
-itemsRouter.post("/", async (req, res, next) => {
-  try {
-    const newItem = new ItemsModel(req.body);
-    const { _id } = await newItem.save();
-    res.status(201).send({ _id });
-  } catch (error) {
-    next(error);
+itemsRouter.post(
+  "/",
+  JWTAuthMiddleware,
+  ownerOnlyMiddleware,
+  async (req, res, next) => {
+    try {
+      const newItem = new ItemsModel(req.body);
+      const { _id } = await newItem.save();
+      res.status(201).send({ _id });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
-itemsRouter.get("/", async (req, res, next) => {
+itemsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const items = await ItemsModel.find();
     res.send(items);
@@ -23,7 +30,7 @@ itemsRouter.get("/", async (req, res, next) => {
   }
 });
 
-itemsRouter.get("/:itemId", async (req, res, next) => {
+itemsRouter.get("/:itemId", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const item = await ItemsModel.find(req.params.itemId);
     if (item) res.send(item);

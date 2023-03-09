@@ -1,5 +1,5 @@
 import createHttpError from "http-errors";
-import { verifyAccessToken } from "./tools";
+import { verifyAccessToken } from "./tools.js";
 
 export const JWTAuthMiddleware = async (req, res, next) => {
   const user = req.user;
