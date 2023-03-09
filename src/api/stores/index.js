@@ -12,7 +12,7 @@ storesRouter.post(
   ownerOnlyMiddleware,
   async (req, res, next) => {
     try {
-      const newStore = new StoresModel(req.body);
+      const newStore = new StoresModel({ ...req.body, owner: req.user._id });
       const { _id } = await newStore.save();
       res.status(201).send(_id);
     } catch (error) {
@@ -42,5 +42,38 @@ storesRouter.get("/:storeId", JWTAuthMiddleware, async (req, res, next) => {
     next(error);
   }
 });
+
+storesRouter.put(
+  "/:storeId",
+  JWTAuthMiddleware,
+  ownerOnlyMiddleware,
+  async (req, res, next) => {
+    try {
+      const store = await StoresModel.findById(req.params.storeId);
+      if (store) {
+        if (store.owner.toString() === req.user._id) {
+          const updatedStore = await StoresModel.findByIdAndUpdate(
+            req.params.storeId,
+            req.body,
+            { new: true, runValidators: true }
+          );
+          res.send(updatedStore);
+        } else {
+          next(
+            createHttpError(
+              403,
+              "Only and the owner of the store can modify it!"
+            )
+          );
+        }
+      } else
+        next(
+          createHttpError(404, `Store with id ${req.params.storeId} not found!`)
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default storesRouter;
