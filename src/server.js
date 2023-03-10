@@ -11,11 +11,13 @@ import {
   notFoundHandler,
   unauthorizedErrorHandler,
 } from "./errorHandlers.js";
+import cors from "cors";
 
 const server = express();
 const port = process.env.PORT || 3001;
 
 server.use(express.json());
+server.use(cors());
 
 server.use("/users", usersRouter);
 server.use("/items", itemsRouter);
