@@ -76,4 +76,17 @@ storesRouter.put(
   }
 );
 
+storesRouter.post("/cart", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const stores = await StoresModel.find({
+      stock: {
+        $all: [{ $elemMatch: { itemId: { $in: req.body.cart } } }],
+      },
+    });
+    res.send(stores);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default storesRouter;
