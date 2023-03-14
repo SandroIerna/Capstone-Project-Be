@@ -11,7 +11,7 @@ const StockItems = new Schema({
 
 const StoresSchema = new Schema({
   name: { type: String, required: true },
-  owner: { type: mongoose.Types.ObjectId, required: true, ref: "Users" },
+  owner: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
   stock: [{ type: StockItems, required: true }],
 });
 

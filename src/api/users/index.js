@@ -29,7 +29,7 @@ usersRouter.post("/login", async (req, res, next) => {
     if (user) {
       const payload = { _id: user._id, role: user.role, name: user.firstName };
       const accessToken = await createAccessToken(payload);
-      res.send({ accessToken });
+      res.send({ accessToken, message: "Logged in successfully!" });
     }
   } catch (error) {
     next(error);

@@ -23,7 +23,7 @@ storesRouter.post(
 
 storesRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const stores = await StoresModel.find();
+    const stores = await StoresModel.find().populate({ path: "owner" });
     res.send(stores);
   } catch (error) {
     next(error);
