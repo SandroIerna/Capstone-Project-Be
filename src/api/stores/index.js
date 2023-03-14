@@ -76,6 +76,29 @@ storesRouter.put(
   }
 );
 
+storesRouter.put(
+  "/:storeId/stock-add",
+  JWTAuthMiddleware,
+  ownerOnlyMiddleware,
+  async (req, res, next) => {
+    try {
+      const store = await StoresModel.findById(req.params.storeId);
+      if (store) {
+        if (store.owner.toString() === req.user._id) {
+          const updatedStore = await StoresModel.findByIdAndUpdate(
+            req.params.storeId,
+            { $push: { stock: [req.body] } },
+            { new: true, runValidators: true }
+          );
+          res.send(updatedStore);
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 storesRouter.post("/cart", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const stores = await StoresModel.find({
