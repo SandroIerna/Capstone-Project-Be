@@ -23,7 +23,7 @@ storesRouter.post(
 
 storesRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const stores = await StoresModel.find().populate({ path: "owner" });
+    const stores = await StoresModel.find();
     res.send(stores);
   } catch (error) {
     next(error);
@@ -32,7 +32,9 @@ storesRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
 
 storesRouter.get("/:storeId", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const store = await StoresModel.findById(req.params.storeId);
+    const store = await StoresModel.findById(req.params.storeId).populate({
+      path: "owner",
+    });
     if (store) res.send(store);
     else
       next(
@@ -60,10 +62,7 @@ storesRouter.put(
           res.send(updatedStore);
         } else {
           next(
-            createHttpError(
-              403,
-              "Only and the owner of the store can modify it!"
-            )
+            createHttpError(403, "Only the owner of the store can modify it!")
           );
         }
       } else
@@ -101,9 +100,10 @@ storesRouter.put(
 
 storesRouter.post("/cart", JWTAuthMiddleware, async (req, res, next) => {
   try {
+    console.log(req.body);
     const stores = await StoresModel.find({
       stock: {
-        $all: [{ $elemMatch: { itemId: { $in: req.body.cart } } }],
+        $all: [{ $elemMatch: { itemId: { $in: req.body } } }],
       },
     });
     res.send(stores);
