@@ -31,7 +31,7 @@ itemsRouter.post(
   }
 );
 
-itemsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
+itemsRouter.get("/", async (req, res, next) => {
   try {
     const items = await ItemsModel.find();
     res.send(items);
@@ -40,14 +40,23 @@ itemsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   }
 });
 
-itemsRouter.get("/:itemId", JWTAuthMiddleware, async (req, res, next) => {
+itemsRouter.get("/:itemId", async (req, res, next) => {
   try {
-    const item = await ItemsModel.find(req.params.itemId);
+    const item = await ItemsModel.findById(req.params.itemId);
     if (item) res.send(item);
     else
       next(
         createHttpError(404, `Item with id: ${req.params.itemId} not found!`)
       );
+  } catch (error) {
+    next(error);
+  }
+});
+
+itemsRouter.get("/type/:itemsType", async (req, res, next) => {
+  try {
+    const items = await ItemsModel.find({ type: req.params.itemsType });
+    res.send(items);
   } catch (error) {
     next(error);
   }
