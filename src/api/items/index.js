@@ -30,10 +30,22 @@ itemsRouter.post(
     }
   }
 );
+itemsRouter.post("/items", async (req, res, next) => {
+  try {
+    const items = await ItemsModel.find({ name: { $regex: req.body.query } })
+      .sort({ name: 1 })
+      .collation({ locale: "en", caseLevel: true });
+    res.send(items);
+  } catch (error) {
+    next(error);
+  }
+});
 
 itemsRouter.get("/", async (req, res, next) => {
   try {
-    const items = await ItemsModel.find();
+    const items = await ItemsModel.find()
+      .sort({ name: 1 })
+      .collation({ locale: "en", caseLevel: true });
     res.send(items);
   } catch (error) {
     next(error);
@@ -55,7 +67,9 @@ itemsRouter.get("/:itemId", async (req, res, next) => {
 
 itemsRouter.get("/type/:itemsType", async (req, res, next) => {
   try {
-    const items = await ItemsModel.find({ type: req.params.itemsType });
+    const items = await ItemsModel.find({ type: req.params.itemsType })
+      .sort({ name: 1 })
+      .collation({ locale: "en", caseLevel: true });
     res.send(items);
   } catch (error) {
     next(error);

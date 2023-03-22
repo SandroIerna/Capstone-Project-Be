@@ -3,9 +3,10 @@ import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
 const StockItems = new Schema({
-  itemId: { type: mongoose.Types.ObjectId, required: true, ref: "Item" },
+  _id: { type: mongoose.Types.ObjectId, required: true, ref: "Item" },
   quantity: { type: Number, required: true },
-  price: { type: String, required: true },
+  price: { type: Number, required: true },
+  value: { type: String, enum: ["Euro", "Dollar"], default: "Euro" },
   sale: { type: Boolean, required: true },
 });
 
@@ -13,6 +14,10 @@ const StoresSchema = new Schema({
   name: { type: String, required: true },
   owner: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
   stock: [{ type: StockItems, required: true }],
+  location: {
+    latitude: { type: String, required: true },
+    longitude: { type: String, required: true },
+  },
   image: {
     type: String,
     default:

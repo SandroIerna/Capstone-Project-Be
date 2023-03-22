@@ -1,4 +1,6 @@
 import express from "express";
+import createHttpError from "http-errors";
+import { JWTAuthMiddleware } from "../../library/jwtAuth.js";
 import { createAccessToken } from "../../library/tools.js";
 import UsersModel from "./model.js";
 
@@ -31,6 +33,24 @@ usersRouter.post("/login", async (req, res, next) => {
       const accessToken = await createAccessToken(payload);
       res.send({ accessToken, message: "Logged in successfully!" });
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
+  const user = await UsersModel.findById(req.user._id);
+  res.send(user);
+});
+
+usersRouter.get("/:userId", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const user = await UsersModel.findById(req.params.userId);
+    if (user) res.send(user);
+    else
+      next(
+        createHttpError(404, `User with id ${req.params.userId} not found!`)
+      );
   } catch (error) {
     next(error);
   }

@@ -101,10 +101,48 @@ storesRouter.put(
 storesRouter.post("/cart", JWTAuthMiddleware, async (req, res, next) => {
   try {
     console.log(req.body);
+    let queryBody = [];
+    req.body.map((id) =>
+      queryBody.push({
+        "stock._id": id,
+      })
+    );
     const stores = await StoresModel.find({
-      stock: {
-        $all: [{ $elemMatch: { itemId: { $in: req.body } } }],
-      },
+      $and: queryBody,
+      //  req.body.map((id) => {
+      //   `"stock.itemId":"${id}"`;
+      // }),
+      // [
+      //   // { "stock.itemId": "640f965b24070139840e68bd" },
+      //   { "stock.itemId": "640f962524070139840e68ba" },
+      // ],
+    });
+    res.send(stores);
+  } catch (error) {
+    next(error);
+  }
+});
+
+storesRouter.post("/test", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    console.log(req.body);
+    let queryBody = [];
+    req.body.map((id) =>
+      queryBody.push({
+        "stock._id": id,
+      })
+    );
+    const stores = await StoresModel.find({
+      $and: queryBody,
+    });
+    stores.map((store) => {
+      let cartTotal;
+      store.stock.map((item) => {
+        queryBody.includes(item._id);
+        console.log(item.price);
+        cartTotal += item.price;
+        console.log(cartTotal);
+      });
     });
     res.send(stores);
   } catch (error) {
