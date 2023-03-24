@@ -99,6 +99,28 @@ storesRouter.put(
 );
 
 storesRouter.post("/cart", JWTAuthMiddleware, async (req, res, next) => {
+  // try {
+  //   console.log(req.body);
+  //   let queryBody = [];
+  //   req.body.map((id) =>
+  //     queryBody.push({
+  //       "stock._id": id,
+  //     })
+  //   );
+  //   const stores = await StoresModel.find({
+  //     $and: queryBody,
+  //     //  req.body.map((id) => {
+  //     //   `"stock.itemId":"${id}"`;
+  //     // }),
+  //     // [
+  //     //   // { "stock.itemId": "640f965b24070139840e68bd" },
+  //     //   { "stock.itemId": "640f962524070139840e68ba" },
+  //     // ],
+  //   });
+  //   res.send(stores);
+  // } catch (error) {
+  //   next(error);
+  // }
   try {
     console.log(req.body);
     let queryBody = [];
@@ -109,15 +131,20 @@ storesRouter.post("/cart", JWTAuthMiddleware, async (req, res, next) => {
     );
     const stores = await StoresModel.find({
       $and: queryBody,
-      //  req.body.map((id) => {
-      //   `"stock.itemId":"${id}"`;
-      // }),
-      // [
-      //   // { "stock.itemId": "640f965b24070139840e68bd" },
-      //   { "stock.itemId": "640f962524070139840e68ba" },
-      // ],
+    }).populate("stock");
+    const storesWithCartTotal = stores.map((store) => {
+      let cartTotal = 0;
+      store.stock.map((item) => {
+        if (req.body.includes(item._id.toString())) {
+          cartTotal += item.price;
+        }
+      });
+      return { ...store.toObject(), cartTotal };
     });
-    res.send(stores);
+    const sortedStores = storesWithCartTotal.sort(
+      (a, b) => a.cartTotal - b.cartTotal
+    );
+    res.send(sortedStores);
   } catch (error) {
     next(error);
   }
@@ -134,17 +161,20 @@ storesRouter.post("/test", JWTAuthMiddleware, async (req, res, next) => {
     );
     const stores = await StoresModel.find({
       $and: queryBody,
-    });
-    stores.map((store) => {
-      let cartTotal;
+    }).populate("stock");
+    const storesWithCartTotal = stores.map((store) => {
+      let cartTotal = 0;
       store.stock.map((item) => {
-        queryBody.includes(item._id);
-        console.log(item.price);
-        cartTotal += item.price;
-        console.log(cartTotal);
+        if (req.body.includes(item._id.toString())) {
+          cartTotal += item.price;
+        }
       });
+      return { ...store.toObject(), cartTotal };
     });
-    res.send(stores);
+    const sortedStores = storesWithCartTotal.sort(
+      (a, b) => a.cartTotal - b.cartTotal
+    );
+    res.send(sortedStores);
   } catch (error) {
     next(error);
   }
