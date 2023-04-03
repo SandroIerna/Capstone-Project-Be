@@ -1,5 +1,6 @@
 import express from "express";
 import ItemsModel from "./model.js";
+import StoresModel from "../stores/model.js";
 import createHttpError from "http-errors";
 import { JWTAuthMiddleware } from "../../library/jwtAuth.js";
 import { ownerOnlyMiddleware } from "../../library/ownerOnly.js";
@@ -55,8 +56,24 @@ itemsRouter.get("/", async (req, res, next) => {
 itemsRouter.get("/:itemId", async (req, res, next) => {
   try {
     const item = await ItemsModel.findById(req.params.itemId);
-    if (item) res.send(item);
-    else
+    if (item) {
+      const stores = await StoresModel.find({
+        "stock._id": req.params.itemId,
+      });
+      const storesWithItemPrice = stores.map((store) => {
+        let price = 0;
+        store.stock.map((item) => {
+          if (req.params.itemId === item._id.toString()) {
+            price += item.price;
+          }
+        });
+        return { ...store.toObject(), price };
+      });
+      const sortedStores = storesWithItemPrice.sort(
+        (a, b) => a.price - b.price
+      );
+      res.send({ item, sortedStores });
+    } else
       next(
         createHttpError(404, `Item with id: ${req.params.itemId} not found!`)
       );

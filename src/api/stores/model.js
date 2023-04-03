@@ -18,6 +18,8 @@ const StoresSchema = new Schema({
     latitude: { type: String, required: true },
     longitude: { type: String, required: true },
   },
+  banner: { type: String, default: "" },
+  description: { type: String, required: true },
   image: {
     type: String,
     default:
